@@ -109,12 +109,15 @@ public class SuitabilityTestController {
                     genericRequest.setContent(calculateProfileService(genericRequest.getContent()));
                     break;
                 case "verificarPerfil":
+                    genericRequest.setContent(verifyCustomForm(genericRequest.getContent()));
                     break;
                 case "crearOrdenNuevoCuestionario":
                     break;
                 case "crearOrdenModificacionCuestionario":
+                    genericRequest.setContent(renewCustomForm(genericRequest.getContent()));
                     break;
                 case "descartarOrdenCuestionario":
+                    genericRequest.setContent(discardCustomForm(genericRequest.getContent()));
                     break;
                 case "recuperarCuestionarios":
                     genericRequest.setContent(getBPforms(genericRequest.getContent()));
@@ -189,9 +192,7 @@ public class SuitabilityTestController {
             response.setIdAvaloq("");
             response.setProfile("");
             List<RequestError> errorList = new ArrayList<RequestError>();
-            RequestError error = new RequestError();
-            error.setCodError("001");
-            error.setDescError("Body null");
+            RequestError error = getRequestNullError();
             errorList.add(error);
             response.setError(errorList);
         }
@@ -211,25 +212,84 @@ public class SuitabilityTestController {
                 reponseList.add(responseDummy);
             }else{
                 //PRUEBA OK
-                responseDummy.setEstado("COMPLETED");
-                responseDummy.setTipo("SUITABILITY");
-                responseDummy.setVersion("1");
-                responseDummy.setFecha(new Date().toString());
                 for (int i = 0;i <= 4 ;i++) {
                     bpCustomFormResponse response = new bpCustomFormResponse();
-                    response = responseDummy;
+                    response.setEstado("COMPLETED");
+                    response.setTipo("SUITABILITY");
+                    response.setVersion("1");
+                    response.setFecha(new Date().toString());
                     response.setCuestionId("SUI000"+i);
                     reponseList.add(response);
                     }
                 }
         }else{
-            RequestError error = new RequestError();
-            error.setCodError("001");
-            error.setDescError("Body null");
+            RequestError error = getRequestNullError();
             responseDummy.setError(error);
             reponseList.add(responseDummy);
         }
         return gson.toJson(reponseList);
+    }
+
+    private String renewCustomForm(String rq) {
+        RenewCustomFormResponse response = new RenewCustomFormResponse();
+        RenewCustomFormRequest request = gson.fromJson(rq, RenewCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("ID NO ENCONTRAD0 ERROR");
+        if(request != null){
+            if(request.getIdCustomForm().equals("12345")) {
+               //HOLD
+                response.setIdOrdenHold("ORDENHOLD-"+getSaltString());
+            }else{
+                //PRUEBA OK
+                response.setIdOrden("ORDERNEW-"+getSaltString());
+            }
+        }else{
+            RequestError error = getRequestNullError();
+
+        }
+        return gson.toJson(response);
+    }
+
+    private String discardCustomForm(String rq) {
+        DiscardCustomFormResponse response = new DiscardCustomFormResponse();
+        DiscardCustomFormRequest request = gson.fromJson(rq, DiscardCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("ID NO ENCONTRAD0 ERROR");
+        if(request != null){
+
+        }else{
+            RequestError error = getRequestNullError();
+            response.setError(error);
+
+        }
+        return gson.toJson(response);
+    }
+
+    private static RequestError getRequestNullError() {
+        RequestError error = new RequestError();
+        error.setCodError("001");
+        error.setDescError("Body null");
+        return error;
+    }
+
+    private String verifyCustomForm(String rq) {
+        VerifyCustomFormResponse response = new VerifyCustomFormResponse();
+        VerifyCustomFormRequest request = gson.fromJson(rq, VerifyCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("ID NO ENCONTRAD0 ERROR");
+        if(request != null){
+
+            response.setIdCustomForm("CF-"+getSaltString());
+            response.setIdDocument("DOCU-"+getSaltString());
+        }else{
+            RequestError error = getRequestNullError();
+            response.setError(error);
+
+        }
+        return gson.toJson(response);
     }
 
     @RequestMapping(value="/createNewSuitabilityTest", method=RequestMethod.POST)
@@ -258,9 +318,7 @@ public class SuitabilityTestController {
             }
         }else{
             response.setStatus("KO");
-            RequestError error = new RequestError();
-            error.setCodError("001");
-            error.setDescError("Body null");
+            RequestError error = getRequestNullError();
             response.setError(error);
         }
         return new ResponseEntity<createNewSuitabilityResponse>(response,getHeaders(),HttpStatus.OK);

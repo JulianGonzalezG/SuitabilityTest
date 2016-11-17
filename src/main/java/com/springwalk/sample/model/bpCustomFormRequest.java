@@ -47,7 +47,5 @@ public class bpCustomFormRequest {
         return idioma;
     }
 
-    public void setIdioma(String idioma) {
-        this.idioma = idioma;
-    }
+    public void setIdioma(String idioma) {this.idioma = idioma;}
 }
