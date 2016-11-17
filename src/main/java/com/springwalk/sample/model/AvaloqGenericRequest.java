@@ -6,7 +6,6 @@ package com.springwalk.sample.model;
 public class AvaloqGenericRequest {
     private String service;
     private String content;
-
     private String bussinesUnit;
     /**
      *

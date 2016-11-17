@@ -12,6 +12,7 @@ import javax.crypto.*;
 import java.io.InputStream;
 import java.security.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -23,8 +24,7 @@ import java.util.Random;
 public class SuitabilityTestController {
 
     Gson gson = new Gson();
-
-    @RequestMapping(value="/calculateprofile", method=RequestMethod.POST)
+   /* @RequestMapping(value="/calculateprofile", method=RequestMethod.POST)
     public ResponseEntity<SuitabilityResponse> calculateProfile(@RequestBody SuitabilityRequest request){
         SuitabilityResponse response  = new SuitabilityResponse();
 
@@ -91,7 +91,7 @@ public class SuitabilityTestController {
 
         }
         return new ResponseEntity<SuitabilityResponse>(response,HttpStatus.OK);
-    }
+    }*/
 
     @RequestMapping(value="/avaloqproxy", method=RequestMethod.POST)
     public ResponseEntity<String> avaloqproxy(@RequestBody String rq, @RequestHeader("Date") String date){
@@ -109,7 +109,6 @@ public class SuitabilityTestController {
                     genericRequest.setContent(calculateProfileService(genericRequest.getContent()));
                     break;
                 case "verificarPerfil":
-                    //
                     break;
                 case "crearOrdenNuevoCuestionario":
                     break;
@@ -118,6 +117,7 @@ public class SuitabilityTestController {
                 case "descartarOrdenCuestionario":
                     break;
                 case "recuperarCuestionarios":
+                    genericRequest.setContent(getBPforms(genericRequest.getContent()));
                     break;
                 case "getDocumento":
                     break;
@@ -196,6 +196,40 @@ public class SuitabilityTestController {
             response.setError(errorList);
         }
         return gson.toJson(response);
+    }
+
+    private String getBPforms(String rq) {
+        List<bpCustomFormResponse> reponseList = new ArrayList<bpCustomFormResponse>();
+        bpCustomFormResponse responseDummy = new bpCustomFormResponse();
+        bpCustomFormRequest request = gson.fromJson(rq, bpCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("BP NO ENCONTRAD0 ERROR");
+        if(request != null){
+            if(request.getIdBP().equals("54321")) {
+                responseDummy.setError(questionError);
+                reponseList.add(responseDummy);
+            }else{
+                //PRUEBA OK
+                responseDummy.setEstado("COMPLETED");
+                responseDummy.setTipo("SUITABILITY");
+                responseDummy.setVersion("1");
+                responseDummy.setFecha(new Date().toString());
+                for (int i = 0;i <= 4 ;i++) {
+                    bpCustomFormResponse response = new bpCustomFormResponse();
+                    response = responseDummy;
+                    response.setCuestionId("SUI000"+i);
+                    reponseList.add(response);
+                    }
+                }
+        }else{
+            RequestError error = new RequestError();
+            error.setCodError("001");
+            error.setDescError("Body null");
+            responseDummy.setError(error);
+            reponseList.add(responseDummy);
+        }
+        return gson.toJson(reponseList);
     }
 
     @RequestMapping(value="/createNewSuitabilityTest", method=RequestMethod.POST)
