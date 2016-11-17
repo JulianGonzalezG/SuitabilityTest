@@ -237,16 +237,20 @@ public class SuitabilityTestController {
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
         if(request != null){
-            if(request.getIdCustomForm().equals("12345")) {
+            if(request.getIdCustomForm().equals("SUI0001")) {
                //HOLD
+                RequestError error = new RequestError();
+                error.setCodError("0001");
+                error.setDescError("ID:"+ request.getIdCustomForm() +"  Orden ya existente");
                 response.setIdOrdenHold("ORDENHOLD-"+getSaltString());
+
             }else{
                 //PRUEBA OK
                 response.setIdOrden("ORDERNEW-"+getSaltString());
             }
         }else{
             RequestError error = getRequestNullError();
-
+            response.setError(error);
         }
         return gson.toJson(response);
     }
