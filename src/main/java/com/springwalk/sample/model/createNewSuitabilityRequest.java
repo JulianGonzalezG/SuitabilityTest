@@ -4,41 +4,49 @@ package com.springwalk.sample.model;
  * Created by jgonzalezg on 28/10/2016.
  */
 public class createNewSuitabilityRequest {
-    private String bpId;
-    private String contactId;
-    private String idSuitabilityAvaloq;
-    private Boolean isRenew;
+    private String idBp;
+    private String personId;
+    private String tipoCuestionario;
+    private String idioma;
+    private String version;
 
-    public String getIdSuitabilityAvaloq() {
-        return idSuitabilityAvaloq;
+    public String getIdBp() {
+        return idBp;
     }
 
-    public void setIdSuitabilityAvaloq(String idSuitabilityAvaloq) {
-        this.idSuitabilityAvaloq = idSuitabilityAvaloq;
+    public void setIdBp(String idBp) {
+        this.idBp = idBp;
     }
 
-    public String getBpId() {
-        return bpId;
+    public String getPersonId() {
+        return personId;
     }
 
-    public void setBpId(String bpId) {
-        this.bpId = bpId;
+    public void setPersonId(String personId) {
+        this.personId = personId;
     }
 
-    public String getContactId() {
-        return contactId;
+    public String getTipoCuestionario() {
+        return tipoCuestionario;
     }
 
-    public void setContactId(String contactId) {
-        this.contactId = contactId;
+    public void setTipoCuestionario(String tipoCuestionario) {
+        this.tipoCuestionario = tipoCuestionario;
     }
 
-
-    public Boolean getIsRenew() {
-        return isRenew;
+    public String getIdioma() {
+        return idioma;
     }
 
-    public void setIsRenew(Boolean renew) {
-        this.isRenew = renew;
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

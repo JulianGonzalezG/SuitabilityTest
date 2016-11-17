@@ -112,6 +112,7 @@ public class SuitabilityTestController {
                     genericRequest.setContent(verifyCustomForm(genericRequest.getContent()));
                     break;
                 case "crearOrdenNuevoCuestionario":
+
                     break;
                 case "crearOrdenModificacionCuestionario":
                     genericRequest.setContent(renewCustomForm(genericRequest.getContent()));
@@ -296,36 +297,17 @@ public class SuitabilityTestController {
         return gson.toJson(response);
     }
 
-    @RequestMapping(value="/createNewSuitabilityTest", method=RequestMethod.POST)
-    public ResponseEntity<createNewSuitabilityResponse> createNewSuitabilityTest(@RequestBody createNewSuitabilityRequest request){
-        createNewSuitabilityResponse response  = new createNewSuitabilityResponse();
-
+    private String newCustomForm(String rq) {
+        createNewSuitabilityResponse response = new createNewSuitabilityResponse();
+        createNewSuitabilityRequest request = gson.fromJson(rq, createNewSuitabilityRequest.class);
         if(request != null){
-            if(checkOnHold(request.getIdSuitabilityAvaloq())){
-                response.setStatus("KO");
-                RequestError error = new RequestError();
-                error.setCodError("666");
-                error.setDescError("Avaloq Suitability Test on hold status");
-                response.setError(error);
-
-            }else{
-                System.out.println(request.getIsRenew());
-                if(request.getIsRenew()) {
-                    //RENOVACION
-                    response.setStatus("OK");
-                    response.setIdSuitabilityAvaloq(request.getIdSuitabilityAvaloq());
-                }else{
-                    //NUEVO
-                    response.setStatus("OK");
-                    response.setIdSuitabilityAvaloq(getSaltString());
-                }
-            }
+            response.setIdBp(getSaltString());
+            response.setIdOrden(getSaltString());
         }else{
-            response.setStatus("KO");
             RequestError error = getRequestNullError();
             response.setError(error);
         }
-        return new ResponseEntity<createNewSuitabilityResponse>(response,getHeaders(),HttpStatus.OK);
+        return gson.toJson(response);
     }
 
     @RequestMapping(value="/encryptTest", method=RequestMethod.POST)

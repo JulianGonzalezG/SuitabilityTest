@@ -8,24 +8,24 @@ import java.util.List;
  */
 public class createNewSuitabilityResponse {
 
-    private String idSuitabilityAvaloq;
+    private String idOrden;
+    private String idBp;
     private RequestError error;
-    private String status;
 
-    public String getIdSuitabilityAvaloq() {
-        return idSuitabilityAvaloq;
+    public String getIdOrden() {
+        return idOrden;
     }
 
-    public void setIdSuitabilityAvaloq(String idSuitabilityAvaloq) {
-        this.idSuitabilityAvaloq = idSuitabilityAvaloq;
+    public void setIdOrden(String idOrden) {
+        this.idOrden = idOrden;
     }
 
-    public String getStatus() {
-        return status;
+    public String getIdBp() {
+        return idBp;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setIdBp(String idBp) {
+        this.idBp = idBp;
     }
 
     public RequestError getError() {
@@ -35,5 +35,4 @@ public class createNewSuitabilityResponse {
     public void setError(RequestError error) {
         this.error = error;
     }
-
 }
