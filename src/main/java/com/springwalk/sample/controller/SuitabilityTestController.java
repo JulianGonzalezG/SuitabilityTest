@@ -102,11 +102,11 @@ public class SuitabilityTestController {
         System.out.println("Encrypt IN:" + rq);
         try {
             rq = CryptoTools.decryptWithAESKey(rq, date);
-            System.out.println("Decrypt IN:" + rq);
+            //System.out.println("Decrypt IN:" + rq);
             //mapear request a genericRequest POJO
             AvaloqGenericRequest genericRequest = gson.fromJson(rq, AvaloqGenericRequest.class);
-            System.out.println("Decrypt IN:" + rq);
-            System.out.println("Service:" + genericRequest.getService());
+            //System.out.println("Decrypt IN:" + rq);
+            //System.out.println("Service:" + genericRequest.getService());
             switch (genericRequest.getService()) {
                 case "calculateProfile":
                     genericRequest.setContent(calculateProfileService(genericRequest.getContent()));
@@ -132,10 +132,10 @@ public class SuitabilityTestController {
                 default:
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
             }
-            jsonOut = gson.toJson(genericRequest);
-            System.out.println("OUT:" + jsonOut);
+            //jsonOut = gson.toJson(genericRequest);
+            //System.out.println("OUT:" + jsonOut);
             jsonOut = CryptoTools.encryptWithAESKey(jsonOut, date);
-            System.out.println("Encrypt OUT:" + jsonOut);
+            //System.out.println("Encrypt OUT:" + jsonOut);
         } catch (Exception e) {
             e.printStackTrace();
             new ResponseEntity<String>("", getHeaders(), HttpStatus.BAD_REQUEST);
@@ -152,7 +152,7 @@ public class SuitabilityTestController {
         questionError.setCodError("003");
         questionError.setDescError("RESPUESTA NO VALIDA");
         questionErrorList.add(questionError);
-
+        System.out.println("TEMPLATE: "+request.getTemplate());
         if (request != null) {
             System.out.println(request.getQuestion().get(0).getAnswer());
             if (request.getTemplate().equals("121") && request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
