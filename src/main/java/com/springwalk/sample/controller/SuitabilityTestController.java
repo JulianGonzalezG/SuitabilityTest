@@ -155,12 +155,24 @@ public class SuitabilityTestController {
 
         if (request != null) {
             System.out.println(request.getQuestion().get(0).getAnswer());
-            if (request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
+            if (request.getTemplate().equals("121") && request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
                 //PRUEBA OK
                 response.setStatus("OK");
                 response.setIdAvaloq("123456789AVAQ");
                 response.setProfile("Moderado");
-
+                List<Question> questionList = new ArrayList<Question>();
+                for (Question rqQuestion : request.getQuestion()) {
+                    Question rsQuestion = new Question();
+                    rsQuestion.setAnswer(rqQuestion.getAnswer());
+                    rsQuestion.setQuestionId(rqQuestion.getQuestionId());
+                    questionList.add(rsQuestion);
+                }
+                response.setQuestion(questionList);
+            }else if(request.getTemplate().equals("120")){
+                //PRUEBA OK
+                response.setStatus("OK");
+                response.setIdAvaloq("9999999AVAQ");
+                response.setProfile("Conservador");
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
