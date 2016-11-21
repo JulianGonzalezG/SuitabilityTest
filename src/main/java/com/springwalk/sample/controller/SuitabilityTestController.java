@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.*;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.*;
 import java.util.ArrayList;
@@ -149,7 +150,7 @@ public class SuitabilityTestController {
         List<RequestError> questionErrorList = new ArrayList<RequestError>();
         RequestError questionError = new RequestError();
         questionError.setCodError("003");
-        questionError.setDescError("ANSWER NOT VALID");
+        questionError.setDescError("RESPUESTA NO VALIDA");
         questionErrorList.add(questionError);
 
         if (request != null) {
@@ -168,14 +169,14 @@ public class SuitabilityTestController {
                     questionList.add(rsQuestion);
                 }
                 response.setQuestion(questionList);
-                //PRUEBA ERROR
+
             } else {
-                //PRUEBA OK
+                //PRUEBA ERROR
                 response.setStatus("KO");
                 List<RequestError> errorList = new ArrayList<RequestError>();
                 RequestError error = new RequestError();
                 error.setCodError("002");
-                error.setDescError("ANSWER VALIDATION ERROR");
+                error.setDescError("ERROR DE VALIDACION");
                 errorList.add(error);
                 response.setError(errorList);
 
@@ -426,17 +427,24 @@ public class SuitabilityTestController {
         if (request != null) {
             try {
                 ClassLoader classLoader = getClass().getClassLoader();
-                File file = new File(classLoader.getResource("SGCertifiedDeveloper.pdf").getFile());
+                File file = new File(classLoader.getResource(request).getFile());
                 System.out.println("FILE 1"+file);
                 System.out.println("length 1"+file.length());
                 int length = (int) file.length();
                 BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
-                System.out.println("BufferedInputStream "+reader);
+                System.out.println("BufferedInputStream "+reader.toString());
                 byte[] bytes = new byte[length];
                 reader.read(bytes, 0, length);
                 reader.close();
+                String res = DatatypeConverter.printBase64Binary(bytes);
+                System.out.println("bytes [] "+bytes.length);
+                System.out.println("bytes String "+res);
+                System.out.println("bytes String "+bytes.toString());
                 byte[] base64EncodedData = Base64.encodeBase64(bytes,false);
-                response.setBlobPDF(base64EncodedData.toString());
+
+                byte[] decodedBytes = Base64.decodeBase64(bytes);
+                System.out.println("decodedBytes "+base64EncodedData);
+                response.setBlobPDF(res);
             } catch (Exception e) {
                 RequestError error = getRequestNullError();
                 response.setError(error);
