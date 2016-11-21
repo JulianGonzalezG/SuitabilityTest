@@ -3,13 +3,15 @@ package com.springwalk.sample.controller;
 import com.google.gson.Gson;
 import com.springwalk.sample.crypto.CryptoTools;
 import com.springwalk.sample.model.*;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.*;
-import java.io.InputStream;
+import java.io.*;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,17 +95,17 @@ public class SuitabilityTestController {
         return new ResponseEntity<SuitabilityResponse>(response,HttpStatus.OK);
     }*/
 
-    @RequestMapping(value="/avaloqproxy", method=RequestMethod.POST)
-    public ResponseEntity<String> avaloqproxy(@RequestBody String rq, @RequestHeader("Date") String date){
+    @RequestMapping(value = "/avaloqproxy", method = RequestMethod.POST)
+    public ResponseEntity<String> avaloqproxy(@RequestBody String rq, @RequestHeader("Date") String date) {
         String jsonOut = "";
-        System.out.println("Encrypt IN:"+ rq);
+        System.out.println("Encrypt IN:" + rq);
         try {
-            rq = CryptoTools.decryptWithAESKey(rq,date);
-            System.out.println("Decrypt IN:"+ rq);
+            rq = CryptoTools.decryptWithAESKey(rq, date);
+            System.out.println("Decrypt IN:" + rq);
             //mapear request a genericRequest POJO
             AvaloqGenericRequest genericRequest = gson.fromJson(rq, AvaloqGenericRequest.class);
-            System.out.println("Decrypt IN:"+ rq);
-            System.out.println("Service:"+ genericRequest.getService());
+            System.out.println("Decrypt IN:" + rq);
+            System.out.println("Service:" + genericRequest.getService());
             switch (genericRequest.getService()) {
                 case "calculateProfile":
                     genericRequest.setContent(calculateProfileService(genericRequest.getContent()));
@@ -112,7 +114,7 @@ public class SuitabilityTestController {
                     genericRequest.setContent(verifyCustomForm(genericRequest.getContent()));
                     break;
                 case "crearOrdenNuevoCuestionario":
-
+                    genericRequest.setContent(newCustomForm(genericRequest.getContent()));
                     break;
                 case "crearOrdenModificacionCuestionario":
                     genericRequest.setContent(renewCustomForm(genericRequest.getContent()));
@@ -124,19 +126,20 @@ public class SuitabilityTestController {
                     genericRequest.setContent(getBPforms(genericRequest.getContent()));
                     break;
                 case "getDocumento":
+                    genericRequest.setContent(getDocumentPdf(genericRequest.getContent()));
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
             }
             jsonOut = gson.toJson(genericRequest);
-            System.out.println("OUT:"+ jsonOut);
-            jsonOut = CryptoTools.encryptWithAESKey(jsonOut,date);
-            System.out.println("Encrypt OUT:"+ jsonOut);
+            System.out.println("OUT:" + jsonOut);
+            jsonOut = CryptoTools.encryptWithAESKey(jsonOut, date);
+            System.out.println("Encrypt OUT:" + jsonOut);
         } catch (Exception e) {
             e.printStackTrace();
-            new ResponseEntity<String>("",getHeaders(),HttpStatus.BAD_REQUEST);
+            new ResponseEntity<String>("", getHeaders(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<String>(jsonOut,getHeaders(),HttpStatus.OK);
+        return new ResponseEntity<String>(jsonOut, getHeaders(), HttpStatus.OK);
     }
 
     private String calculateProfileService(String rq) {
@@ -149,9 +152,9 @@ public class SuitabilityTestController {
         questionError.setDescError("ANSWER NOT VALID");
         questionErrorList.add(questionError);
 
-        if(request != null){
+        if (request != null) {
             System.out.println(request.getQuestion().get(0).getAnswer());
-            if(request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
+            if (request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
                 //PRUEBA OK
                 response.setStatus("OK");
                 response.setIdAvaloq("123456789AVAQ");
@@ -166,7 +169,7 @@ public class SuitabilityTestController {
                 }
                 response.setQuestion(questionList);
                 //PRUEBA ERROR
-            }else{
+            } else {
                 //PRUEBA OK
                 response.setStatus("KO");
                 List<RequestError> errorList = new ArrayList<RequestError>();
@@ -179,7 +182,7 @@ public class SuitabilityTestController {
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
-                    if(rqQuestion.getQuestionId().equals("VEC_ADV_CF_SUIV2PJ_g1_q1")){
+                    if (rqQuestion.getQuestionId().equals("VEC_ADV_CF_SUIV2PJ_g1_q1")) {
                         rsQuestion.setError(questionErrorList);
                     }
                     rsQuestion.setAnswer(rqQuestion.getAnswer());
@@ -188,7 +191,7 @@ public class SuitabilityTestController {
                 }
                 response.setQuestion(questionList);
             }
-        }else{
+        } else {
             response.setStatus("KO");
             response.setIdAvaloq("");
             response.setProfile("");
@@ -207,23 +210,23 @@ public class SuitabilityTestController {
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("BP NO ENCONTRAD0 ERROR");
-        if(request != null){
-            if(request.getIdBP().equals("54321")) {
+        if (request != null) {
+            if (request.getIdBP().equals("54321")) {
                 responseDummy.setError(questionError);
                 reponseList.add(responseDummy);
-            }else{
+            } else {
                 //PRUEBA OK
-                for (int i = 0;i <= 4 ;i++) {
+                for (int i = 0; i <= 4; i++) {
                     bpCustomFormResponse response = new bpCustomFormResponse();
                     response.setEstado("COMPLETED");
                     response.setTipo("SUITABILITY");
                     response.setVersion("1");
                     response.setFecha(new Date().toString());
-                    response.setCuestionId("SUI000"+i);
+                    response.setCuestionId("SUI000" + i);
                     reponseList.add(response);
-                    }
                 }
-        }else{
+            }
+        } else {
             RequestError error = getRequestNullError();
             responseDummy.setError(error);
             reponseList.add(responseDummy);
@@ -237,19 +240,19 @@ public class SuitabilityTestController {
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
-        if(request != null){
-            if(request.getIdCustomForm().equals("SUI0001")) {
-               //HOLD
+        if (request != null) {
+            if (request.getIdCustomForm().equals("SUI0001")) {
+                //HOLD
                 RequestError error = new RequestError();
                 error.setCodError("0001");
-                error.setDescError("ID:"+ request.getIdCustomForm() +"  Orden ya existente");
-                response.setIdOrdenHold("ORDENHOLD-"+getSaltString());
+                error.setDescError("ID:" + request.getIdCustomForm() + "  Orden ya existente");
+                response.setIdOrdenHold("ORDENHOLD-" + getSaltString());
 
-            }else{
+            } else {
                 //PRUEBA OK
-                response.setIdOrden("ORDERNEW-"+getSaltString());
+                response.setIdOrden("ORDERNEW-" + getSaltString());
             }
-        }else{
+        } else {
             RequestError error = getRequestNullError();
             response.setError(error);
         }
@@ -262,9 +265,9 @@ public class SuitabilityTestController {
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
-        if(request != null){
+        if (request != null) {
 
-        }else{
+        } else {
             RequestError error = getRequestNullError();
             response.setError(error);
 
@@ -285,11 +288,11 @@ public class SuitabilityTestController {
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
-        if(request != null){
+        if (request != null) {
 
-            response.setIdCustomForm("CF-"+getSaltString());
-            response.setIdDocument("DOCU-"+getSaltString());
-        }else{
+            response.setIdCustomForm("CF-" + getSaltString());
+            response.setIdDocument("DOCU-" + getSaltString());
+        } else {
             RequestError error = getRequestNullError();
             response.setError(error);
 
@@ -300,69 +303,69 @@ public class SuitabilityTestController {
     private String newCustomForm(String rq) {
         createNewSuitabilityResponse response = new createNewSuitabilityResponse();
         createNewSuitabilityRequest request = gson.fromJson(rq, createNewSuitabilityRequest.class);
-        if(request != null){
+        if (request != null) {
             response.setIdBp(getSaltString());
             response.setIdOrden(getSaltString());
-        }else{
+        } else {
             RequestError error = getRequestNullError();
             response.setError(error);
         }
         return gson.toJson(response);
     }
 
-    @RequestMapping(value="/encryptTest", method=RequestMethod.POST)
-    public ResponseEntity<String> encryptTest(@RequestBody String request){
-        if(request != null){
+    @RequestMapping(value = "/encryptTest", method = RequestMethod.POST)
+    public ResponseEntity<String> encryptTest(@RequestBody String request) {
+        if (request != null) {
             System.out.println(request);
             try {
                 KeyStore keyStore = KeyStore.getInstance("JCEKS");
-                InputStream stream =  SuitabilityTestController.class.getResourceAsStream("/00D0E0000000McO.jks");
+                InputStream stream = SuitabilityTestController.class.getResourceAsStream("/00D0E0000000McO.jks");
                 keyStore.load(stream, "Vector092016".toCharArray());
                 Key key = keyStore.getKey("CertRequest", "Vector092016".toCharArray());
                 Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, keyStore.getCertificate("CertRequest"));
                 byte[] cipherText = cipher.doFinal(request.getBytes());
                 System.out.println("cipher: " + new String(cipherText));
-                return new ResponseEntity<String>(new String(cipherText),HttpStatus.OK);
+                return new ResponseEntity<String>(new String(cipherText), HttpStatus.OK);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseEntity<String>("",getHeaders(),HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<String>("", getHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        return new ResponseEntity<String>(request,getHeaders(),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<String>(request, getHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/encryptAes", method=RequestMethod.POST)
-    public ResponseEntity<String> encryptAes(@RequestBody String request, @RequestHeader("Date") String date){
-        if(request != null){
+    @RequestMapping(value = "/encryptAes", method = RequestMethod.POST)
+    public ResponseEntity<String> encryptAes(@RequestBody String request, @RequestHeader("Date") String date) {
+        if (request != null) {
             System.out.println(request);
             try {
                 System.out.println("Original date:" + date);
                 System.out.println("IVParam date:" + CryptoTools.getIvParameter(date));
-                System.out.println("plain : " + CryptoTools.encryptWithAESKey(request,date));
-                return new ResponseEntity<String>(CryptoTools.encryptWithAESKey(request,date),HttpStatus.OK);
+                System.out.println("plain : " + CryptoTools.encryptWithAESKey(request, date));
+                return new ResponseEntity<String>(CryptoTools.encryptWithAESKey(request, date), HttpStatus.OK);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseEntity<String>("",getHeaders(),HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<String>("", getHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        return new ResponseEntity<String>(request,getHeaders(),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<String>(request, getHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/decryptTest", method=RequestMethod.POST)
-    public ResponseEntity<String> decryptTest(@RequestBody String request, @RequestHeader("Date") String date){
-        if(request != null){
+    @RequestMapping(value = "/decryptTest", method = RequestMethod.POST)
+    public ResponseEntity<String> decryptTest(@RequestBody String request, @RequestHeader("Date") String date) {
+        if (request != null) {
             System.out.println(request);
             System.out.println(date);
             try {
-                System.out.println("plain : " + CryptoTools.decryptWithAESKey(request,date));
-                return new ResponseEntity<String>(CryptoTools.decryptWithAESKey(request,date),HttpStatus.OK);
+                System.out.println("plain : " + CryptoTools.decryptWithAESKey(request, date));
+                return new ResponseEntity<String>(CryptoTools.decryptWithAESKey(request, date), HttpStatus.OK);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseEntity<String>("",getHeaders(),HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<String>("", getHeaders(), HttpStatus.BAD_REQUEST);
             }
         }
-        return new ResponseEntity<String>("",getHeaders(),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<String>("", getHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     private String getSaltString() {
@@ -379,15 +382,128 @@ public class SuitabilityTestController {
 
     protected Boolean checkOnHold(String id) {
         //Comprobar formularios en curso Avaloq
-        if("123456789".equals(id)){
+        if ("123456789".equals(id)) {
             return true;
         }
         return false;
     }
+
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         //headers.add("Content-Type", "application/json");
-        headers.add("Date","1997-01-31 09:26:50.120");
+        headers.add("Date", "1997-01-31 09:26:50.120");
         return headers;
+    }
+
+    private String getDocumentPdf(String rq) {
+        DocumentCustomFormResponse response = new DocumentCustomFormResponse();
+        DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("ID NO ENCONTRAD0 ERROR");
+        if (request != null) {
+            try {
+                response.setBlobPDF(encode("SGCertifiedDeveloper.pdf", false));
+            } catch (Exception e) {
+                RequestError error = getRequestNullError();
+                response.setError(error);
+            }
+        } else {
+            RequestError error = getRequestNullError();
+            response.setError(error);
+        }
+        return gson.toJson(response);
+    }
+
+    @RequestMapping(value="/getDocumentPdf", method=RequestMethod.POST)
+    public ResponseEntity<DocumentCustomFormResponse> getDocumentPdfRest(@RequestBody String request){
+        DocumentCustomFormResponse response = new DocumentCustomFormResponse();
+        //DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
+        RequestError questionError = new RequestError();
+        questionError.setCodError("001");
+        questionError.setDescError("ID NO ENCONTRAD0 ERROR");
+        System.out.println("FILENAME REQUEST "+request);
+        if (request != null) {
+            try {
+                ClassLoader classLoader = getClass().getClassLoader();
+                File file = new File(classLoader.getResource("SGCertifiedDeveloper.pdf").getFile());
+                System.out.println("FILE 1"+file);
+                System.out.println("length 1"+file.length());
+                int length = (int) file.length();
+                BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+                System.out.println("BufferedInputStream "+reader);
+                byte[] bytes = new byte[length];
+                reader.read(bytes, 0, length);
+                reader.close();
+                byte[] base64EncodedData = Base64.encodeBase64(bytes,false);
+                response.setBlobPDF(base64EncodedData.toString());
+            } catch (Exception e) {
+                RequestError error = getRequestNullError();
+                response.setError(error);
+            }
+        } else {
+            RequestError error = getRequestNullError();
+            response.setError(error);
+        }
+        return new ResponseEntity<DocumentCustomFormResponse>(response,HttpStatus.OK);
+    }
+
+
+    /**
+     * This method converts the content of a source file into Base64 encoded data and saves that to a target file.
+     * If isChunked parameter is set to true, there is a hard wrap of the output  encoded text.
+     */
+    private static String encode(String sourceFile, boolean isChunked) throws Exception {
+
+        byte[] base64EncodedData = Base64.encodeBase64(loadFileAsBytesArray(sourceFile), isChunked);
+
+        //writeByteArraysToFile(targetFile, base64EncodedData);
+
+        return base64EncodedData.toString();
+    }
+
+    public static void decode(String sourceFile, String targetFile) throws Exception {
+
+        byte[] decodedBytes = Base64.decodeBase64(loadFileAsBytesArray(sourceFile));
+
+        writeByteArraysToFile(targetFile, decodedBytes);
+    }
+
+    /**
+     * This method loads a file from file system and returns the byte array of the content.
+     *
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public static byte[] loadFileAsBytesArray(String fileName) throws Exception {
+        System.out.println("FILENAME "+fileName);
+        File file = new File(fileName);
+        System.out.println("FILE "+file);
+        int length = (int) file.length();
+        System.out.println("length "+length);
+        BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+        System.out.println("BufferedInputStream "+reader);
+        byte[] bytes = new byte[length];
+        reader.read(bytes, 0, length);
+        reader.close();
+        return bytes;
+
+    }
+
+    /**
+     * This method writes byte array content into a file.
+     *
+     * @param fileName
+     * @param content
+     * @throws IOException
+     */
+    public static void writeByteArraysToFile(String fileName, byte[] content) throws IOException {
+
+        File file = new File(fileName);
+        BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(file));
+        writer.write(content);
+        writer.flush();
+        writer.close();
     }
 }
