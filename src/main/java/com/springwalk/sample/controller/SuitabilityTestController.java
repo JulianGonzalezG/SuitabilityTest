@@ -132,7 +132,7 @@ public class SuitabilityTestController {
                 default:
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
             }
-            //jsonOut = gson.toJson(genericRequest);
+            jsonOut = gson.toJson(genericRequest);
             //System.out.println("OUT:" + jsonOut);
             jsonOut = CryptoTools.encryptWithAESKey(jsonOut, date);
             //System.out.println("Encrypt OUT:" + jsonOut);
@@ -181,7 +181,6 @@ public class SuitabilityTestController {
                     questionList.add(rsQuestion);
                 }
                 response.setQuestion(questionList);
-
             } else {
                 //PRUEBA ERROR
                 response.setStatus("KO");
