@@ -27,74 +27,6 @@ import java.util.Random;
 public class SuitabilityTestController {
 
     Gson gson = new Gson();
-   /* @RequestMapping(value="/calculateprofile", method=RequestMethod.POST)
-    public ResponseEntity<SuitabilityResponse> calculateProfile(@RequestBody SuitabilityRequest request){
-        SuitabilityResponse response  = new SuitabilityResponse();
-
-        List<RequestError> questionErrorList = new ArrayList<RequestError>();
-        RequestError questionError = new RequestError();
-        questionError.setCodError("003");
-        questionError.setDescError("ANSWER NOT VALID");
-        questionErrorList.add(questionError);
-
-        if(request != null){
-            if(request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
-                //PRUEBA OK
-                response.setStatus("OK");
-                response.setIdAvaloq("123456789AVAQ");
-                response.setProfile("Moderado");
-
-                List<Question> questionList = new ArrayList<Question>();
-                for (Question rqQuestion : request.getQuestion()) {
-                    Question rsQuestion = new Question();
-                    rsQuestion.setAnswer(rqQuestion.getAnswer());
-                    rsQuestion.setQuestionId(rqQuestion.getQuestionId());
-                    questionList.add(rsQuestion);
-                }
-                response.setQuestion(questionList);
-                //PRUEBA ERROR
-            }else{
-                //PRUEBA OK
-                response.setStatus("KO");
-
-                List<RequestError> errorList = new ArrayList<RequestError>();
-                RequestError error = new RequestError();
-                error.setCodError("002");
-                error.setDescError("ANSWER VALIDATION ERROR");
-                errorList.add(error);
-                response.setError(errorList);
-
-
-
-                List<Question> questionList = new ArrayList<Question>();
-                for (Question rqQuestion : request.getQuestion()) {
-                    Question rsQuestion = new Question();
-                    if(rqQuestion.getQuestionId().equals("VEC_ADV_CF_SUIV2PJ_g1_q1")){
-                        rsQuestion.setError(questionErrorList);
-                    }
-                    rsQuestion.setAnswer(rqQuestion.getAnswer());
-                    rsQuestion.setQuestionId(rqQuestion.getQuestionId());
-                    questionList.add(rsQuestion);
-                }
-
-                response.setQuestion(questionList);
-            }
-        }else{
-            response.setStatus("KO");
-            response.setIdAvaloq("");
-            response.setProfile("");
-
-            List<RequestError> errorList = new ArrayList<RequestError>();
-            RequestError error = new RequestError();
-            error.setCodError("001");
-            error.setDescError("Body null");
-            errorList.add(error);
-
-            response.setError(errorList);
-
-        }
-        return new ResponseEntity<SuitabilityResponse>(response,HttpStatus.OK);
-    }*/
 
     @RequestMapping(value = "/avaloqproxy", method = RequestMethod.POST)
     public ResponseEntity<String> avaloqproxy(@RequestBody String rq, @RequestHeader("Date") String date) {
@@ -102,11 +34,8 @@ public class SuitabilityTestController {
         System.out.println("Encrypt IN:" + rq);
         try {
             rq = CryptoTools.decryptWithAESKey(rq, date);
-            //System.out.println("Decrypt IN:" + rq);
             //mapear request a genericRequest POJO
             AvaloqGenericRequest genericRequest = gson.fromJson(rq, AvaloqGenericRequest.class);
-            //System.out.println("Decrypt IN:" + rq);
-            //System.out.println("Service:" + genericRequest.getService());
             switch (genericRequest.getService()) {
                 case "calculateProfile":
                     genericRequest.setContent(calculateProfileService(genericRequest.getContent()));
@@ -133,9 +62,7 @@ public class SuitabilityTestController {
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
             }
             jsonOut = gson.toJson(genericRequest);
-            //System.out.println("OUT:" + jsonOut);
             jsonOut = CryptoTools.encryptWithAESKey(jsonOut, date);
-            //System.out.println("Encrypt OUT:" + jsonOut);
         } catch (Exception e) {
             e.printStackTrace();
             new ResponseEntity<String>("", getHeaders(), HttpStatus.BAD_REQUEST);
@@ -159,7 +86,7 @@ public class SuitabilityTestController {
                 //PRUEBA OK
                 response.setStatus("OK");
                 response.setIdAvaloq("123456789AVAQ");
-                response.setProfile("Moderado");
+                response.setProfile("535012");
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
@@ -172,7 +99,7 @@ public class SuitabilityTestController {
                 //PRUEBA OK
                 response.setStatus("OK");
                 response.setIdAvaloq("9999999AVAQ");
-                response.setProfile("Conservador");
+                response.setProfile("535011");
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
@@ -301,7 +228,6 @@ public class SuitabilityTestController {
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
         if (request != null) {
-
             response.setIdCustomForm("CF-" + getSaltString());
             response.setIdDocument("DOCU-" + getSaltString());
         } else {
@@ -524,5 +450,74 @@ public class SuitabilityTestController {
         writer.write(content);
         writer.flush();
         writer.close();
+    }
+
+    @RequestMapping(value="/getPortfolio", method=RequestMethod.POST)
+    public ResponseEntity<ClientPortfolioResponse> getPortfolio(@RequestBody String request){
+        ClientPortfolioResponse  response = new  ClientPortfolioResponse();
+        if (request != null) {
+            try {
+                String jsonBody = "{\n" +
+                        "  \"clientName\": \"nombre cliente\",\n" +
+                        "  \"bp\": [{\n" +
+                        "    \"name\": \"NOMBRE BP\",\n" +
+                        "    \"container\": [{\n" +
+                        "       \"name\": \"NOMBRE CONTAINER\",\n" +
+                        "        \"mac\": [{\n" +
+                        "          \"id\": \"NOMBRE MAC\",\n" +
+                        "          \"name\": \"100000\"\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"id\": \"NOMBRE MAC2\",\n" +
+                        "          \"name\": \"500000\"\n" +
+                        "        }]\n" +
+                        "    },\n" +
+                        "    {\n" +
+                        "       \"name\": \"NOMBRE CONTAINER2\",\n" +
+                        "        \"mac\": [{\n" +
+                        "          \"id\": \"NOMBRE MAC\",\n" +
+                        "          \"name\": \"1000\"\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"id\": \"NOMBRE MAC2\",\n" +
+                        "          \"name\": \"5000\"\n" +
+                        "        }]\n" +
+                        "    }]\n" +
+                        "  },\n" +
+                        "  {\n" +
+                        "    \"name\": \"NOMBRE BP2\",\n" +
+                        "    \"container\": [{\n" +
+                        "       \"name\": \"NOMBRE CONTAINER\",\n" +
+                        "        \"mac\": [{\n" +
+                        "          \"id\": \"NOMBRE MAC\",\n" +
+                        "          \"name\": \"100000\"\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"id\": \"NOMBRE MAC2\",\n" +
+                        "          \"name\": \"500000\"\n" +
+                        "        }]\n" +
+                        "    },\n" +
+                        "    {\n" +
+                        "       \"name\": \"NOMBRE CONTAINER2\",\n" +
+                        "        \"mac\": [{\n" +
+                        "          \"id\": \"NOMBRE MAC\",\n" +
+                        "          \"name\": \"1000\"\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "          \"id\": \"NOMBRE MAC2\",\n" +
+                        "          \"name\": \"5000\"\n" +
+                        "        }]\n" +
+                        "    }]\n" +
+                        "  }]\n" +
+                        "}";
+
+                response = gson.fromJson(jsonBody, ClientPortfolioResponse.class);
+            } catch (Exception e) {
+                return new ResponseEntity<ClientPortfolioResponse>(response,HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<ClientPortfolioResponse>(response,HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<ClientPortfolioResponse>(response,HttpStatus.OK);
     }
 }
