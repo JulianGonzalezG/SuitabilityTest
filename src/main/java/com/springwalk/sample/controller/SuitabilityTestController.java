@@ -56,7 +56,7 @@ public class SuitabilityTestController {
                     genericRequest.setContent(getBPforms(genericRequest.getContent()));
                     break;
                 case "getDocumento":
-                    genericRequest.setContent(getDocumentPdf(genericRequest.getContent()));
+                    genericRequest.setContent(getDocumentPdf(rq));
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
@@ -154,15 +154,27 @@ public class SuitabilityTestController {
                 responseDummy.setError(questionError);
                 reponseList.add(responseDummy);
             } else {
-                //PRUEBA OK
-                for (int i = 0; i <= 4; i++) {
-                    bpCustomFormResponse response = new bpCustomFormResponse();
-                    response.setEstado("COMPLETED");
-                    response.setTipo("SUITABILITY");
-                    response.setVersion("1");
-                    response.setFecha(new Date().toString());
-                    response.setCuestionId("SUI000" + i);
-                    reponseList.add(response);
+                //PRUEBA Ok
+                if(request.getEstado().equals("Done")){
+                    for (int i = 0; i <= 6; i++) {
+                        bpCustomFormResponse response = new bpCustomFormResponse();
+                        response.setEstado("COMPLETED");
+                        response.setTipo("SUITABILITY");
+                        response.setVersion("2");
+                        response.setFecha(new Date().toString());
+                        response.setCuestionId("SUI200" + i);
+                        reponseList.add(response);
+                    }
+                }else{
+                    for (int i = 0; i <= 4; i++) {
+                        bpCustomFormResponse response = new bpCustomFormResponse();
+                        response.setEstado("COMPLETED");
+                        response.setTipo("SUITABILITY");
+                        response.setVersion("1");
+                        response.setFecha(new Date().toString());
+                        response.setCuestionId("SUI000" + i);
+                        reponseList.add(response);
+                    }
                 }
             }
         } else {
@@ -335,13 +347,14 @@ public class SuitabilityTestController {
 
     private String getDocumentPdf(String rq) {
         DocumentCustomFormResponse response = new DocumentCustomFormResponse();
+        System.out.println(rq);
         DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
         if (request != null) {
             try {
-                response.setBlobPDF(encode("SGCertifiedDeveloper.pdf", false));
+                response.setBlobPDF(encode(request.getIdCustomForm(), false));
             } catch (Exception e) {
                 RequestError error = getRequestNullError();
                 response.setError(error);
@@ -353,7 +366,7 @@ public class SuitabilityTestController {
         return gson.toJson(response);
     }
 
-    @RequestMapping(value="/getDocumentPdf", method=RequestMethod.POST)
+    @RequestMapping(value="/getDocumentPdfRest", method=RequestMethod.POST)
     public ResponseEntity<DocumentCustomFormResponse> getDocumentPdfRest(@RequestBody String request){
         DocumentCustomFormResponse response = new DocumentCustomFormResponse();
         //DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
