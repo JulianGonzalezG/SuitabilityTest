@@ -5,7 +5,6 @@ import com.springwalk.sample.crypto.CryptoTools;
 import com.springwalk.sample.model.*;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,6 @@ import java.util.Random;
 public class SuitabilityTestController {
 
     Gson gson = new Gson();
-
     @RequestMapping(value = "/avaloqproxy", method = RequestMethod.POST)
     public ResponseEntity<String> avaloqproxy(@RequestBody String rq, @RequestHeader("Date") String date) {
         String jsonOut = "";
@@ -56,7 +54,7 @@ public class SuitabilityTestController {
                     genericRequest.setContent(getBPforms(genericRequest.getContent()));
                     break;
                 case "getDocumento":
-                    genericRequest.setContent(getDocumentPdf(rq));
+                    genericRequest.setContent(getDocumentPdfRest(genericRequest.getContent()));
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid service: " + genericRequest.getService());
@@ -366,10 +364,9 @@ public class SuitabilityTestController {
         return gson.toJson(response);
     }
 
-    @RequestMapping(value="/getDocumentPdfRest", method=RequestMethod.POST)
-    public ResponseEntity<DocumentCustomFormResponse> getDocumentPdfRest(@RequestBody String request){
+    private String getDocumentPdfRest(String rq){
         DocumentCustomFormResponse response = new DocumentCustomFormResponse();
-        //DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
+        DocumentCustomFormRequest request = gson.fromJson(rq, DocumentCustomFormRequest.class);
         RequestError questionError = new RequestError();
         questionError.setCodError("001");
         questionError.setDescError("ID NO ENCONTRAD0 ERROR");
@@ -377,7 +374,7 @@ public class SuitabilityTestController {
         if (request != null) {
             try {
                 ClassLoader classLoader = getClass().getClassLoader();
-                File file = new File(classLoader.getResource(request).getFile());
+                File file = new File(classLoader.getResource("avaloqPreview.pdf").getFile());
                 System.out.println("FILE 1"+file);
                 System.out.println("length 1"+file.length());
                 int length = (int) file.length();
@@ -403,7 +400,7 @@ public class SuitabilityTestController {
             RequestError error = getRequestNullError();
             response.setError(error);
         }
-        return new ResponseEntity<DocumentCustomFormResponse>(response,HttpStatus.OK);
+        return gson.toJson(response);
     }
 
 
