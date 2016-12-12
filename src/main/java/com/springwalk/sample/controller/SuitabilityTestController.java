@@ -3,8 +3,8 @@ package com.springwalk.sample.controller;
 import com.google.gson.Gson;
 import com.springwalk.sample.crypto.CryptoTools;
 import com.springwalk.sample.model.*;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+//import com.thoughtworks.xstream.XStream;
+//import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -533,7 +533,7 @@ public class SuitabilityTestController {
         return new ResponseEntity<ClientPortfolioResponse>(response,HttpStatus.OK);
     }
 
-    @RequestMapping(value="/testQuestionList", method=RequestMethod.POST)
+    /*@RequestMapping(value="/testQuestionList", method=RequestMethod.POST)
     public ResponseEntity<String> testQuestionList(@RequestBody QuestionListRQ request){
 
         System.out.println("LANG :"+request.getLang());
@@ -562,7 +562,7 @@ public class SuitabilityTestController {
 
 
         return new ResponseEntity<String>("OK",HttpStatus.OK);
-    }
+    }*/
 
 
 }
