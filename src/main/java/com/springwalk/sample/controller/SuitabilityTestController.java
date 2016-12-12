@@ -3,6 +3,8 @@ package com.springwalk.sample.controller;
 import com.google.gson.Gson;
 import com.springwalk.sample.crypto.CryptoTools;
 import com.springwalk.sample.model.*;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -79,8 +81,8 @@ public class SuitabilityTestController {
         questionErrorList.add(questionError);
         System.out.println("TEMPLATE: "+request.getTemplate());
         if (request != null) {
-            System.out.println(request.getQuestion().get(0).getAnswer());
-            if (request.getTemplate().equals("121") && request.getQuestion().get(0).getAnswer().equals("Obtener un rendimiento de media superior en un 5% a la inflación.")) {
+            //System.out.println(request.getQuestion().get(0).getAnswer());
+            if (request.getTemplate().equals("121")) {
                 //PRUEBA OK
                 response.setStatus("OK");
                 response.setIdAvaloq("123456789AVAQ");
@@ -88,7 +90,7 @@ public class SuitabilityTestController {
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
-                    rsQuestion.setAnswer(rqQuestion.getAnswer());
+                    //rsQuestion.setAnswer(rqQuestion.getAnswer());
                     rsQuestion.setQuestionId(rqQuestion.getQuestionId());
                     questionList.add(rsQuestion);
                 }
@@ -101,7 +103,7 @@ public class SuitabilityTestController {
                 List<Question> questionList = new ArrayList<Question>();
                 for (Question rqQuestion : request.getQuestion()) {
                     Question rsQuestion = new Question();
-                    rsQuestion.setAnswer(rqQuestion.getAnswer());
+                    //rsQuestion.setAnswer(rqQuestion.getAnswer());
                     rsQuestion.setQuestionId(rqQuestion.getQuestionId());
                     questionList.add(rsQuestion);
                 }
@@ -122,7 +124,7 @@ public class SuitabilityTestController {
                     if (rqQuestion.getQuestionId().equals("VEC_ADV_CF_SUIV2PJ_g1_q1")) {
                         rsQuestion.setError(questionErrorList);
                     }
-                    rsQuestion.setAnswer(rqQuestion.getAnswer());
+                    //rsQuestion.setAnswer(rqQuestion.getAnswer());
                     rsQuestion.setQuestionId(rqQuestion.getQuestionId());
                     questionList.add(rsQuestion);
                 }
@@ -269,7 +271,7 @@ public class SuitabilityTestController {
                 KeyStore keyStore = KeyStore.getInstance("JCEKS");
                 InputStream stream = SuitabilityTestController.class.getResourceAsStream("/00D0E0000000McO.jks");
                 keyStore.load(stream, "Vector092016".toCharArray());
-                Key key = keyStore.getKey("CertRequest", "Vector092016".toCharArray());
+                //Key key = keyStore.getKey("CertRequest", "Vector092016".toCharArray());
                 Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, keyStore.getCertificate("CertRequest"));
                 byte[] cipherText = cipher.doFinal(request.getBytes());
@@ -530,4 +532,37 @@ public class SuitabilityTestController {
         }
         return new ResponseEntity<ClientPortfolioResponse>(response,HttpStatus.OK);
     }
+
+    @RequestMapping(value="/testQuestionList", method=RequestMethod.POST)
+    public ResponseEntity<String> testQuestionList(@RequestBody QuestionListRQ request){
+
+        System.out.println("LANG :"+request.getLang());
+        System.out.println("objList ID:"+request.getObjList().getObj().get(0).getAvqId());
+        System.out.println("questType :"+request.getQuestType());
+        System.out.println("questVersion :"+request.getQuestVersion());
+        System.out.println("questStatus :"+request.getQuestStatus());
+
+        XStream xstream = new XStream();
+        xstream.alias("content", QuestionListRQ.class);
+        String XML_out = xstream.toXML(request); //Nos retorna un String con la estructura en forma de XML
+
+        System.out.println("POJO TO XMLOUT :"+"\n"+XML_out);
+
+        return new ResponseEntity<String>("OK",HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/testQuestionListXML", method=RequestMethod.POST)
+    public ResponseEntity<String> testQuestionListXML(@RequestBody String request){
+
+        XStream xstream = new XStream(new JettisonMappedXmlDriver());
+        xstream.alias("content", QuestionListRQ.class);
+        QuestionListRQ content = (QuestionListRQ)xstream.fromXML(request);
+
+        System.out.println("READ XML FROM JSON :"+ xstream.toXML(content));
+
+
+        return new ResponseEntity<String>("OK",HttpStatus.OK);
+    }
+
+
 }

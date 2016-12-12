@@ -8,8 +8,10 @@ import java.util.ArrayList;
  */
 public class Question {
     private String questionId;
-    private String answer;
-    private List<RequestError> error = new ArrayList<RequestError>();
+    //private String answer;
+    private List<CRAN_VEC_ADV_ProcessSTAnswer_CLS> answers = new ArrayList<>();
+    private List<CRAN_VEC_ADV_ProcessSTMatrixAnswer_CLS> matrixAnswers = new ArrayList<>();
+    private List<RequestError> error = new ArrayList<>();
 
     /**
      *
@@ -33,19 +35,19 @@ public class Question {
      *
      * @return
      * The answer
-     */
+     *//*
     public String getAnswer() {
         return answer;
     }
 
-    /**
+    *//**
      *
      * @param answer
      * The answer
-     */
+     *//*
     public void setAnswer(String answer) {
         this.answer = answer;
-    }
+    }*/
 
     /**
      *
@@ -63,5 +65,31 @@ public class Question {
      */
     public void setError(List<RequestError> error) {
         this.error = error;
+    }
+
+    /**
+     *
+     * @return
+     * The Answers
+     */
+    public List<CRAN_VEC_ADV_ProcessSTAnswer_CLS> getAnswers() {
+        return answers;
+    }
+
+    /**
+     *
+     * @param answers
+     * The answers
+     */
+    public void setAnswers(List<CRAN_VEC_ADV_ProcessSTAnswer_CLS> answers) {
+        this.answers = answers;
+    }
+
+    public List<CRAN_VEC_ADV_ProcessSTMatrixAnswer_CLS> getMatrixAnswers() {
+        return matrixAnswers;
+    }
+
+    public void setMatrixAnswers(List<CRAN_VEC_ADV_ProcessSTMatrixAnswer_CLS> matrixAnswers) {
+        this.matrixAnswers = matrixAnswers;
     }
 }

@@ -7,6 +7,8 @@ public class AvaloqGenericRequest {
     private String service;
     private String content;
     private String bussinesUnit;
+    private String codAppOrigen;
+    private String codModAppOrigen;
     /**
      *
      * @return
@@ -49,5 +51,21 @@ public class AvaloqGenericRequest {
 
     public void setBussinesUnit(String bussinesUnit) {
         this.bussinesUnit = bussinesUnit;
+    }
+
+    public String getCodAppOrigen() {
+        return codAppOrigen;
+    }
+
+    public void setCodAppOrigen(String codAppOrigen) {
+        this.codAppOrigen = codAppOrigen;
+    }
+
+    public String getCodModAppOrigen() {
+        return codModAppOrigen;
+    }
+
+    public void setCodModAppOrigen(String codModAppOrigen) {
+        this.codModAppOrigen = codModAppOrigen;
     }
 }
